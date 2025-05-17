@@ -1,0 +1,101 @@
+<div class="card card-custom" id="printableArea">
+  <div class="card-header card-header-custom text-center">
+    <h4>Calculadora de Rendimentos</h4>
+  </div>
+  <div class="card-body p-4">
+    <form action="/calculate" method="POST" class="no-print">
+      <div class="row g-3">
+        <div class="col-md-6 mb-3">
+          <label for="tipo_investimento" class="form-label">Tipo de Investimento:</label>
+          <select class="form-select" id="tipo_investimento" name="tipo_investimento" required>
+            <option value="CDB" <%= "selected" if @params_in && @params_in['tipo_investimento'] == "CDB" %>>CDB</option>
+            <option value="LCI" <%= "selected" if @params_in && @params_in['tipo_investimento'] == "LCI" %>>LCI</option>
+            <option value="LCA" <%= "selected" if @params_in && @params_in['tipo_investimento'] == "LCA" %>>LCA</option>
+          </select>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label for="valor_principal" class="form-label">Valor a Investir (R$):</label>
+          <input type="number" class="form-control" id="valor_principal" name="valor_principal" step="0.01" min="0" placeholder="Ex: 25000.00" value="<%= @params_in['valor_principal'] if @params_in %>" required>
+        </div>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-md-6 mb-3">
+          <label for="percentual_cdi_investimento" class="form-label">Rentabilidade (% do CDI):</label>
+          <input type="number" class="form-control" id="percentual_cdi_investimento" name="percentual_cdi_investimento" step="0.1" min="0" placeholder="Ex: 110" value="<%= @params_in['percentual_cdi_investimento'] if @params_in %>" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label for="taxa_cdi_anual" class="form-label">Taxa DI/CDI Anual (%):</label>
+          <input type="number" class="form-control" id="taxa_cdi_anual" name="taxa_cdi_anual" step="0.01" min="0" placeholder="Ex: 11.46" value="<%= @params_in['taxa_cdi_anual'] if @params_in %>" required>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label for="prazo_meses" class="form-label">Prazo do Investimento (meses):</label>
+        <input type="number" class="form-control" id="prazo_meses" name="prazo_meses" min="1" placeholder="Ex: 12" value="<%= @params_in['prazo_meses'] if @params_in %>" required>
+      </div>
+
+      <div class="d-grid">
+        <button type="submit" class="btn btn-primary-custom btn-lg">Calcular Rendimento</button>
+      </div>
+    </form>
+
+    <% if @results %>
+      <hr class="my-4 no-print">
+      <div class="results-card mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="text-center results-title flex-grow-1 mb-0">Resultado da Simulação</h5>
+          <button type="button" class="btn btn-sm btn-outline-secondary no-print ms-auto" onclick="printContent('printableArea')">
+            <i class="fas fa-print me-1"></i> Imprimir Resultados
+          </button>
+        </div>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <strong>Tipo:</strong>
+            <span><%= @results[:tipo_investimento] %></span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <strong>Valor Investido:</strong>
+            <span><%= formatar_moeda(@results[:valor_principal]) %></span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <strong>Prazo:</strong>
+            <span><%= @results[:prazo_meses] %> meses</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <strong>Rentabilidade Bruta Anual:</strong>
+            <span><%= '%.2f' % @results[:taxa_bruta_anual_investimento_perc] %>%</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <strong>Rendimento Bruto no Período:</strong>
+            <span><%= formatar_moeda(@results[:rendimento_bruto_total]) %></span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <strong>Imposto de Renda:</strong>
+            <span><%= @results[:descricao_ir] %></span>
+          </li>
+          <% if @results[:tipo_investimento] == 'CDB' %>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <strong>Valor do IR:</strong>
+              <span class="text-danger"><%= formatar_moeda(@results[:imposto_de_renda_valor]) %></span>
+            </li>
+          <% end %>
+          <li class="list-group-item d-flex justify-content-between align-items-center fs-5 list-group-item-highlight">
+            <strong>Rendimento Líquido no Período:</strong>
+            <span style="color: #28a745;"><%= formatar_moeda(@results[:rendimento_liquido_total]) %></span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center fs-5 list-group-item-highlight">
+            <strong>Valor Total ao Final:</strong>
+            <span style="color: #198754;"><%= formatar_moeda(@results[:valor_final_resgatado]) %></span>
+          </li>
+          <% if @results[:prazo_meses].to_i > 0 %>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <strong>Taxa Líquida Efetiva Anualizada:</strong>
+            <span><%= '%.2f' % @results[:taxa_liquida_efetiva_anualizada_perc] %>%</span>
+          </li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+  </div>
+</div>
