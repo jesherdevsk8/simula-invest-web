@@ -70,6 +70,7 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
+  pry (~> 0.15.2)
   pry-byebug (~> 3.11)
   puma (~> 6.6)
   rubocop (~> 1.75)
