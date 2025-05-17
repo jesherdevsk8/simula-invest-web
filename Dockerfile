@@ -4,7 +4,7 @@ WORKDIR /usr/src/app
 
 COPY Gemfile Gemfile.lock ./
 
-RUN bundle install --jobs $(nproc) --retry 3 --without development test
+RUN bundle install
 
 COPY . .
 
