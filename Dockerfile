@@ -1,5 +1,10 @@
 FROM ruby:3.3.4-slim-bookworm AS base
 
+RUN apt-get update -qq && \
+    apt-get install -y --no-install-recommends \
+      build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /usr/src/app
 
 COPY Gemfile Gemfile.lock ./
