@@ -5,6 +5,8 @@
   <title>Redirecionando para o app...</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Redirecionando para o app ConnectHunt">
+  <!-- Fallback: redirecionamento automático via meta tag -->
+  <meta http-equiv="refresh" content="0; url=<%= @deep_link %>">
   <style>
     * {
       margin: 0;
@@ -164,7 +166,8 @@
     
     <div class="store-links" id="actions" style="display: none;">
       <a href="<%= @deep_link %>" class="btn">Tentar novamente</a>
-      <a href="/app-store" class="btn btn-secondary">Instalar app</a>
+      <a href="https://apps.apple.com/br/app/connecthunt/id_do_seu_app" class="btn btn-secondary" id="app-store-link" style="display: none;">App Store</a>
+      <a href="https://play.google.com/store/apps/details?id=com.seu.pacote" class="btn btn-secondary" id="play-store-link" style="display: none;">Google Play</a>
     </div>
 
     <!-- Informações de debug -->
@@ -181,35 +184,62 @@
     const title = document.getElementById('title');
     const message = document.getElementById('message');
     const actions = document.getElementById('actions');
+    const appStoreLink = document.getElementById('app-store-link');
+    const playStoreLink = document.getElementById('play-store-link');
     const deepLink = '<%= @deep_link %>';
+    
+    // Detectar sistema operacional
+    function detectOS() {
+      const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+      if (/android/i.test(userAgent)) {
+        return 'android';
+      } else if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+        return 'ios';
+      }
+      return 'unknown';
+    }
     
     // Tentar abrir o app automaticamente
     function openApp() {
       window.location.href = deepLink;
     }
     
-    // Função para mostrar fallback
+    // Função para mostrar fallback com loja correta
     function showFallback() {
       icon.textContent = '⚠️';
       spinner.style.display = 'none';
       title.textContent = 'App não encontrado';
       message.textContent = 'O ConnectHunt não está instalado no seu dispositivo';
       actions.style.display = 'flex';
+      
+      // Mostrar link da loja correta baseado no OS
+      const os = detectOS();
+      if (os === 'ios') {
+        appStoreLink.style.display = 'inline-block';
+      } else if (os === 'android') {
+        playStoreLink.style.display = 'inline-block';
+      } else {
+        // Se não conseguir detectar, mostrar ambos
+        appStoreLink.style.display = 'inline-block';
+        playStoreLink.style.display = 'inline-block';
+      }
     }
     
     // Executar imediatamente
     openApp();
     
-    // Fallback: se não abrir em 3 segundos, mostrar opções
-    setTimeout(() => {
+    // Fallback: se não abrir em 1.5 segundos, mostrar opções (como no exemplo NestJS)
+    const fallbackTimeout = setTimeout(() => {
       showFallback();
-    }, 3000);
+    }, 1500);
     
     // Detectar se o usuário voltou (app não foi aberto)
     let hidden = false;
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) {
         hidden = true;
+        // Limpa o timeout se a página for para o fundo (sinal que o app abriu)
+        clearTimeout(fallbackTimeout);
       } else if (hidden) {
         // Usuário voltou, provavelmente o app não abriu
         setTimeout(() => {
