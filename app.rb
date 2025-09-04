@@ -94,11 +94,11 @@ post '/calculate' do
 end
 
 # Rota para testar redirecionamento do app (connecthunt deep link)
-get '/app/:id' do
+get '/product/:id' do
   @product_id = params[:id]
   @deep_link = "connecthunt://produto/#{@product_id}"
 
-  erb :app_redirect
+  erb :product_redirect
 end
 
 # Rota alternativa para redirecionamento direto
