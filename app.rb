@@ -92,35 +92,3 @@ post '/calculate' do
 
   erb :index
 end
-
-# Rota para testar redirecionamento do app (connecthunt deep link)
-get '/product/:id' do
-  @product_id = params[:id]
-  @deep_link = "connecthunt://produto/#{@product_id}"
-
-  erb :product_redirect
-end
-
-# Rota alternativa para redirecionamento direto
-get '/redirect/:id' do
-  product_id = params[:id]
-  deep_link = "connecthunt://produto/#{product_id}"
-
-  redirect deep_link
-end
-
-# Rota para loja de aplicativos
-get '/app-store' do
-  user_agent = request.user_agent || ''
-
-  if user_agent.include?('iPhone') || user_agent.include?('iPad') || user_agent.include?('iPod')
-    # iOS - App Store
-    redirect 'https://apps.apple.com/app/your-app-id'
-  elsif user_agent.include?('Android')
-    # Android - Google Play
-    redirect 'https://play.google.com/store/apps/details?id=your.app.package'
-  else
-    # Fallback genérico
-    redirect 'https://expo.dev/your-app'
-  end
-end
